@@ -1,17 +1,39 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <p>{{ postTitle }} {{ postDescription }}</p>
+  <Popup v-if="showPopup" @post="getPost" @close="togglePopup"/>
+  <button @click="emitMsg(); togglePopup()">Emit</button>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
+  import io from "socket.io-client"
+  import Popup from "./components/Popup.vue"
+  export default {
+    name: 'App',
+    components: { Popup },
+    data() {
+      return {
+        socket: {},
+        showPopup: true,
+        postTitle: '',
+        postDescription: ''
+      }
+    },
+    created() {
+      this.socket = io("http://localhost:8080")
+    },
+    methods: {
+      emitMsg() {
+        this.socket.emit("task", "hello")
+      },
+      getPost(post) {
+        this.postTitle = post.title
+        this.postDescription = post.description
+      },
+      togglePopup() {
+        this.showPopup = !this.showPopup
+      }
+    }
   }
-}
 </script>
 
 <style>
